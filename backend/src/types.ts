@@ -11,3 +11,10 @@ export const loginSchema = z.object({
     password: z.string().max(8)
 })
 export type loginInput = z.infer<typeof registerSchema>;
+
+export const createOrgSchema = z.object({
+    name: z.string(),
+    description: z.string().optional()
+})
+
+export type createOrgData = z.infer<typeof createOrgSchema>;

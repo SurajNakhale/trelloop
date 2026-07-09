@@ -12,6 +12,25 @@ datasource db {
   provider = "postgresql"
 }
 
+enum OrgRole {
+  ADMIN
+  OWNER
+  MEMBER
+}
+
+enum Status {
+  TODO
+  IN_PROGRESS
+  DONE
+  ARCHIVED
+}
+
+enum IssuePriority {
+    LOW
+    MEDIUM
+    HIGH
+    CRITICAL
+}
 
 model User {
   id            String           @id @default(uuid())
@@ -19,4 +38,59 @@ model User {
   password      String
 
   createdAt     DateTime         @default(now())
+
+  members       Member[]
+  issues        Issue[]
+}
+
+
+model Org {
+  id            String           @id @default(uuid())
+  name          String           @unique
+  description   String?
+
+  createdAt     DateTime         @default(now())
+
+  members       Member[]
+  boards        Board[]
+}
+
+
+model Member {
+  id            String           @id @default(uuid())
+  userId        String
+  orgId         String
+  role          OrgRole          @default(MEMBER)
+
+  joinedAt      DateTime         @default(now())
+  
+  user          User             @relation(fields: [userId], references: [id])
+  org           Org              @relation(fields: [orgId], references: [id])
+  @@unique([userId, orgId])
+}
+
+model Board {
+  id            String           @id @default(uuid())
+  title         String           
+  orgId         String 
+
+  createdAt     DateTime         @default(now())
+
+  issues        Issue[]
+  org           Org              @relation(fields: [orgId], references: [id])
+}
+
+
+model Issue {
+  id           String            @id @default(uuid())
+  title        String
+  description  String?
+  priority     IssuePriority?
+  assigneeId   String?
+  status       Status            @default(TODO)
+  boardId      String
+
+  careatedAt   DateTime          @default(now())
+  assignee     User?              @relation(fields: [assigneeId], references: [id])
+  board        Board             @relation(fields: [boardId], references: [id])
 }

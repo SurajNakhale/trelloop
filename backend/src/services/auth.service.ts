@@ -4,6 +4,7 @@ import { generateToken } from "../lib/jwt";
 import { ApiError } from "../utlis/ApiError";
 import { hashpass } from "../lib/hashpass";
 import { comparePass } from "../lib/comparepass";
+import { HTTP_STATUS } from "../utlis/http";
 
 export const register = async (data: registerInput ) => {
     const username = data.username;
@@ -15,7 +16,7 @@ export const register = async (data: registerInput ) => {
             }
         })
 
-        if(existingUser) throw new ApiError(409, "User already exists")
+        if(existingUser) throw new ApiError(HTTP_STATUS.CONFLICT, "User already exists")
 
         const hashpassword = await hashpass(password);
 
@@ -54,7 +55,7 @@ export const login = async (data: loginInput) => {
     if(!existingUser) throw new ApiError(401, "User does not found")
 
     const matchPass = comparePass(password, Buffer.from(existingUser.password));
-    if(!matchPass) throw new ApiError(401, "Invalid password");
+    if(!matchPass) throw new ApiError(HTTP_STATUS.UNAUTHORIZED, "Invalid password");
 
     const token = generateToken(existingUser.id);
 
@@ -81,7 +82,7 @@ export const userInfo = async (userId: string) => {
         }
     })
 
-    if(!user) throw new ApiError(401, "User not found");
+    if(!user) throw new ApiError(HTTP_STATUS.UNAUTHORIZED, "User not found");
 
     return {
         userInfo: user
