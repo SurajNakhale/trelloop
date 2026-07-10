@@ -7,9 +7,8 @@ const validation = (res: Response) => res.status(HTTP_STATUS.BAD_REQUEST).json("
 export const createBoard = async (req: Request, res: Response, next: NextFunction) => {
     const parseddata = createBoardSchema.safeParse(req.body);
     const role = req.role!;
-    const userId = req.userId!;
     const orgId = req.orgId!;
-    if(!parseddata.success) validation(res);
+    if(!parseddata.success) return validation(res);
 
     try{
         if(parseddata.data == undefined) return;
@@ -54,16 +53,14 @@ export const getBoard = async (req: Request, res: Response, next: NextFunction) 
 }
 export const updateBoard = async (req: Request, res: Response, next: NextFunction) => {
     const parsedData = createBoardSchema.safeParse(req.body);
-    const orgId = req.orgId!;
-    const userId = req.userId!;
     const boardId = req.params.boardId as string;
+    const orgId = req.orgId!;
     const role = req.role!;
 
-
-    if(!parsedData.success) validation(res);
+    if(!parsedData.success) return validation(res);
     try{
         if(!parsedData.data) return;
-        const result = await boardService.updateBoard(parsedData.data, boardId, orgId, userId, role);
+        const result = await boardService.updateBoard(parsedData.data, boardId, orgId, role);
 
         res.status(HTTP_STATUS.OK).json({
             message: "updated board",
@@ -77,12 +74,10 @@ export const updateBoard = async (req: Request, res: Response, next: NextFunctio
 export const deleteBoard = async (req: Request, res: Response, next: NextFunction) => {
     const boardId = req.params.boardId as string;
     const orgId = req.orgId!;
-    const userId = req.userId!;
     const role = req.role!;
 
-
     try{
-        await boardService.deleteBoard(boardId, orgId, userId, role);
+        await boardService.deleteBoard(boardId, orgId,  role);
 
         res.status(HTTP_STATUS.OK).json({
             messsage: "deleted successfully",

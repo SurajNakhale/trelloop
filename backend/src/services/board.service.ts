@@ -31,6 +31,13 @@ export const getAllBoards = async (orgId: string) => {
         }
     })
 
+     if (!allBoards) {
+        throw new ApiError(
+            HTTP_STATUS.NOT_FOUND,
+            "Board not found"
+        );
+    }
+
     return allBoards.map((x) => ({
         id: x.id,
         title: x.title,
@@ -52,16 +59,38 @@ export const getBoard = async (orgId: string, boardId: string) => {
         }
     })
 
+    if (!board) {
+        throw new ApiError(
+            HTTP_STATUS.NOT_FOUND,
+            "Board not found"
+        );
+    }
+
     return board
 
 }
-export const updateBoard = async (data: createBoardInput, boardId: string, orgId: string, userId: string, role: OrgRole) => {
+export const updateBoard = async (data: createBoardInput, boardId: string,orgId: string, role: OrgRole) => {
+
+    
+    const board = await prisma.board.findFirst({
+        where: {
+            id: boardId,
+            orgId
+        }
+    });
+
+    if(!board){
+        throw new ApiError(
+            HTTP_STATUS.NOT_FOUND,
+            "Board not found"
+        );
+    }
 
     if(role == OrgRole.ADMIN || role == OrgRole.OWNER){
 
         const updated = await prisma.board.update({
             where: {
-                id: boardId
+                id: board.id,
             },
             data: {
                 title: data.title
@@ -72,13 +101,34 @@ export const updateBoard = async (data: createBoardInput, boardId: string, orgId
     }
 
 }
-export const deleteBoard = async (boardId: string, orgId: string, userId: string, role: OrgRole) => {
+export const deleteBoard = async (boardId: string, orgId: string, role: OrgRole) => {
 
-    if(role == OrgRole.ADMIN || role == OrgRole.OWNER){
-        await prisma.board.delete({
-            where: {
-                id: boardId
-            }
-        })
+    if (role !== OrgRole.ADMIN && role !== OrgRole.OWNER) {
+        throw new ApiError(
+            HTTP_STATUS.FORBIDDEN,
+            "You don't have permission to update this board."
+        );
     }
+    
+
+    const board = await prisma.board.findFirst({
+        where: {
+            id: boardId,
+            orgId
+        }
+    });
+
+    if(!board){
+        throw new ApiError(
+            HTTP_STATUS.NOT_FOUND,
+            "Board not found"
+        );
+    }
+
+    await prisma.board.delete({
+        where: {
+            id: board.id
+        }
+    })
+    
 }
