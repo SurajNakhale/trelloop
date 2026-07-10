@@ -129,7 +129,7 @@ export const addMembers = async (orgId: string, memberId: string, userId: string
 
     const role = await checkRole(userId, orgId);
 
-    if(role == "ADMIN" || role == "OWNER"){
+    if(role === OrgRole.ADMIN || role === OrgRole.OWNER){
         const existingMember = await prisma.member.findUnique({
             where: {
                 userId_orgId: {
@@ -162,7 +162,6 @@ export const addMembers = async (orgId: string, memberId: string, userId: string
 
     throw new ApiError(403, "You don't have permission to add members.");
 }
-
 
 export const getAllMembers = async(orgId: string, userId: string) => {
     

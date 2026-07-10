@@ -18,3 +18,9 @@ export const createOrgSchema = z.object({
 })
 
 export type createOrgData = z.infer<typeof createOrgSchema>;
+
+export const createBoardSchema = z.object({
+    title: z.string()
+})
+
+export type createBoardInput = z.infer<typeof createBoardSchema>;
