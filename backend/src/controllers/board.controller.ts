@@ -6,13 +6,14 @@ const validation = (res: Response) => res.status(HTTP_STATUS.BAD_REQUEST).json("
 
 export const createBoard = async (req: Request, res: Response, next: NextFunction) => {
     const parseddata = createBoardSchema.safeParse(req.body);
+    const role = req.role!;
     const userId = req.userId!;
     const orgId = req.orgId!;
     if(!parseddata.success) validation(res);
 
     try{
         if(parseddata.data == undefined) return;
-        const result = await boardService.createBoard(userId, orgId, parseddata.data);
+        const result = await boardService.createBoard(orgId, parseddata.data, role);
 
         res.status(HTTP_STATUS.CREATED).json({
             message: "board created successfully",
@@ -56,12 +57,13 @@ export const updateBoard = async (req: Request, res: Response, next: NextFunctio
     const orgId = req.orgId!;
     const userId = req.userId!;
     const boardId = req.params.boardId as string;
+    const role = req.role!;
 
 
     if(!parsedData.success) validation(res);
     try{
         if(!parsedData.data) return;
-        const result = await boardService.updateBoard(parsedData.data, boardId, orgId, userId);
+        const result = await boardService.updateBoard(parsedData.data, boardId, orgId, userId, role);
 
         res.status(HTTP_STATUS.OK).json({
             message: "updated board",
@@ -76,10 +78,11 @@ export const deleteBoard = async (req: Request, res: Response, next: NextFunctio
     const boardId = req.params.boardId as string;
     const orgId = req.orgId!;
     const userId = req.userId!;
+    const role = req.role!;
 
 
     try{
-        await boardService.deleteBoard(boardId, orgId, userId);
+        await boardService.deleteBoard(boardId, orgId, userId, role);
 
         res.status(HTTP_STATUS.OK).json({
             messsage: "deleted successfully",

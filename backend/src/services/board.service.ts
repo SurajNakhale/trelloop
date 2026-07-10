@@ -3,23 +3,10 @@ import { OrgRole } from "../generated/prisma/enums";
 import type { createBoardInput } from "../types";
 import { ApiError } from "../utlis/ApiError";
 import { HTTP_STATUS } from "../utlis/http";
-async function checkRole(userId: string, orgId: string){
-    const result = await prisma.member.findFirst({
-        where: {
-            userId,
-            orgId
-        },
-        select: {
-            role: true
-        }
-    })
 
-    return result?.role;
-}
-export const createBoard = async (userId: string, orgId: string, data: createBoardInput) => {
+export const createBoard = async (orgId: string, data: createBoardInput, role: OrgRole) => {
     const title = data.title;
 
-    const role = await checkRole(userId, orgId);
     if(role == OrgRole.ADMIN || role == OrgRole.OWNER){
         const newBoard = await prisma.board.create({
             data: {
@@ -29,9 +16,12 @@ export const createBoard = async (userId: string, orgId: string, data: createBoa
         })
 
         return newBoard
+    }else{
+        throw new ApiError(
+        HTTP_STATUS.FORBIDDEN,
+        "You don't have permission to create boards."
+        );
     }
-
-    return new ApiError(HTTP_STATUS.UNAUTHORIZED, "does not have acccess to create board")
 }
 export const getAllBoards = async (orgId: string) => {
     
@@ -65,9 +55,7 @@ export const getBoard = async (orgId: string, boardId: string) => {
     return board
 
 }
-export const updateBoard = async (data: createBoardInput, boardId: string, orgId: string, userId: string) => {
-    
-    const role = await checkRole(userId, orgId);
+export const updateBoard = async (data: createBoardInput, boardId: string, orgId: string, userId: string, role: OrgRole) => {
 
     if(role == OrgRole.ADMIN || role == OrgRole.OWNER){
 
@@ -84,9 +72,7 @@ export const updateBoard = async (data: createBoardInput, boardId: string, orgId
     }
 
 }
-export const deleteBoard = async (boardId: string, orgId: string, userId: string) => {
-    
-    const role = await checkRole(userId, orgId);
+export const deleteBoard = async (boardId: string, orgId: string, userId: string, role: OrgRole) => {
 
     if(role == OrgRole.ADMIN || role == OrgRole.OWNER){
         await prisma.board.delete({

@@ -13,7 +13,7 @@ app.use(express.json());
 
 app.use("/auth", authRoutes);
 app.use("/org", orgRoutes);
-app.use("/org/boards", boardRoutes);
+app.use("/org/:orgId/boards", boardRoutes);
 app.use("/org/:orgId/boards/:boardId/issues", issueRoutes)
 
 console.log(process.env.DATABASE_URL);
