@@ -85,7 +85,7 @@ model Issue {
   id           String            @id @default(uuid())
   title        String
   description  String?
-  priority     IssuePriority?
+  priority     IssuePriority?    @default(MEDIUM)
   assigneeId   String?
   status       Status            @default(TODO)
   boardId      String
