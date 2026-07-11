@@ -5,7 +5,8 @@ declare module "express-serve-static-core" {
   interface Request {
     userId?: string;
     orgId?: string;
-    role?: OrgRole
+    role?: OrgRole;
+    boardId?: string;
   }
 }
 
